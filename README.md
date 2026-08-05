@@ -34,3 +34,4 @@ npm run dev
 ## قاعدة البيانات
 
 SQLite عبر Prisma driver adapters (`@prisma/adapter-better-sqlite3`). للانتقال إلى PostgreSQL في الإنتاج، بدّل `provider` في `prisma/schema.prisma` واستبدل المُهيّئ (adapter) في `src/lib/prisma.ts` و `prisma/seed.ts` بمُهيّئ Postgres المناسب (مثل `@prisma/adapter-pg`).
+# youtube-dashboard
