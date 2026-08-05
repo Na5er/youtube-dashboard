@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  channels Channel[]
+  notes    Note[]    @relation("NotesAboutUser")
+
+  authoredNotes Note[] @relation("NotesByAdmin")
+}
+
+model Channel {
+  id                String   @id @default(cuid())
+  name              String
+  link              String
+  liveStreamsCount  Int      @default(0)
+  regularVideosCount Int     @default(0)
+  publishedAt       DateTime
+  totalEarnings     Float    @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId String
+
+  videos Video[]
+  notes  Note[]
+
+  @@index([ownerId])
+}
+
+model Video {
+  id        String   @id @default(cuid())
+  title     String
+  earnings  Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId String
+
+  @@index([channelId])
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  author   User   @relation("NotesByAdmin", fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+
+  targetUser   User?   @relation("NotesAboutUser", fields: [targetUserId], references: [id], onDelete: Cascade)
+  targetUserId String?
+
+  channel   Channel? @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId String?
+
+  @@index([targetUserId])
+  @@index([channelId])
+}
