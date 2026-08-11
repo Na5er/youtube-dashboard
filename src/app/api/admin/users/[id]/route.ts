@@ -35,3 +35,19 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     notes: user.notes,
   });
 }
+
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
+  }
+
+  const { id } = await params;
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user || user.role !== "USER") {
+    return NextResponse.json({ error: "المستخدم غير موجود أو لا يمكن حذفه" }, { status: 404 });
+  }
+
+  await prisma.user.delete({ where: { id } });
+  return NextResponse.json({ success: true });
+}
